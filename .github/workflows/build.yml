@@ -19,14 +19,24 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Make gradlew executable
-      run: chmod +x gradlew || true
-
-    - name: Build APK with Gradle
-      run: ./gradlew assembleDebug
+    - name: Find and Build Gradle Project
+      run: |
+        # البحث عن ملف gradlew وتحديد مساره
+        GRADLEW_PATH=$(find . -name "gradlew" -type f | head -n 1)
+        
+        if [ -n "$GRADLEW_PATH" ]; then
+          DIR=$(dirname "$GRADLEW_PATH")
+          echo "Found gradlew in $DIR"
+          cd "$DIR"
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        else
+          echo "Gradle wrapper not found, using system gradle"
+          gradle assembleDebug
+        fi
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: nova-enhance-ai-apk
-        path: app/build/outputs/apk/debug/*.apk
+        path: "**/build/outputs/apk/debug/*.apk"
