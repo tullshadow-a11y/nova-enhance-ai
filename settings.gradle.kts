@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "NovaEnhance AI"
 
-include(":app")
+include(":")
