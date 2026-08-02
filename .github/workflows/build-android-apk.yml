@@ -1,0 +1,42 @@
+name: Build Fresh Native Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Grant execute permission for gradlew
+      run: |
+        if [ -f "gradlew" ]; then
+          chmod +x gradlew
+        elif [ -f "android-app/gradlew" ]; then
+          chmod +x android-app/gradlew
+        fi
+
+    - name: Build Debug APK
+      run: |
+        if [ -f "gradlew" ]; then
+          ./gradlew clean assembleDebug --no-daemon
+        elif [ -d "android-app" ]; then
+          cd android-app
+          ./gradlew clean assembleDebug --no-daemon
+        fi
+
+    - name: Upload Fresh Native APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Native-Kotlin-APK
+        path: |
+          **/build/outputs/apk/debug/*.apk
